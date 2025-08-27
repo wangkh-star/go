@@ -66,7 +66,7 @@ func main() {
 	fmt.Println("借记卡支付")
 	purchaseItem(debitCard, 400)
 	fmt.Println("借记卡支付")
-	go purchaseItem(debitCard, 700)
+	purchaseItem(debitCard, 700)
 
 	var account Account = debitCard
 	fmt.Println(account.GetBalance())
