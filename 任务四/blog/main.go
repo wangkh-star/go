@@ -1,31 +1,32 @@
 package main
 
 import (
-	"fmt"
-
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+	"blog/core"
+	"blog/flag"
+	"blog/global"
+	"blog/routers"
 )
 
-type User struct {
-	Id   uint
-	Name string
-	Age  uint
-}
-
 func main() {
-	dsn := "root:wangkh@tcp(127.0.0.1:3306)/blog?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic(err)
+	//配置文件的加载
+	core.InitConf()
+	//初始化数据库连接
+	core.InitGorm()
+
+	//初始化表
+	option := flag.Parse()
+	core.Info(option)
+	if flag.IsWebStop(option) {
+		flag.SwitchOption(option)
+		return
 	}
-	//自动迁移
-	db.AutoMigrate(&User{})
-	u1 := User{Name: "张三111", Age: 14}
-	db.Create(&u1) //创建
 
-	var user []User
-	db.Find(&user)
-	fmt.Println(user)
-
+	//初始化路由
+	router := routers.InitRouter()
+	addr := global.Config.System.Addr()
+	core.Info("程序运行 ", addr)
+	err := router.Run(addr)
+	if err != nil {
+		core.Error("程序运行异常 ", err)
+	}
 }
